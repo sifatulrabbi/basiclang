@@ -1,0 +1,10 @@
+build
+.env
+.tmp
+.assets
+.local
+*.log
+*.local
+*.env.*
+
+!.gitkeep

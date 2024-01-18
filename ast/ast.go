@@ -71,3 +71,17 @@ func (ls *LetStatement) statementNode() {
 func (ls *LetStatement) TokenLiteral() string {
 	return ls.Token.Literal
 }
+
+// this implements the Statement interface
+type ReturnStatement struct {
+	Token token.Token // token.RETURN
+	Name  *Identifier
+	Value Expression
+}
+
+func (ls *ReturnStatement) statementNode() {
+}
+
+func (ls *ReturnStatement) TokenLiteral() string {
+	return ls.Token.Literal
+}

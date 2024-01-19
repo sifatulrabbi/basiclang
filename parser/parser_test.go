@@ -8,6 +8,36 @@ import (
 	"basiclang/token"
 )
 
+func TestIdentifierExpression(t *testing.T) {
+	input := "foobar;"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Program has not enough statements, got=%d\n",
+			len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statement[0] is not an *ast.ExpressionStatement, got=%T\n",
+			program.Statements[0])
+	}
+
+	ident, ok := stmt.Expression.(*ast.Identifier)
+	if !ok {
+		t.Errorf("stmt.Expression is not *ast.Indentifier, got=%T\n",
+			stmt.Expression)
+	}
+	if ident.Value != "foobar" {
+		t.Errorf("ident.Value not %q, got=%q",
+			"foobar", ident.Value)
+	}
+}
+
 func TestLestStatements(t *testing.T) {
 	input := `
 let x = 5;

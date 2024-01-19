@@ -8,17 +8,38 @@ import (
 	"basiclang/token"
 )
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
-	l         *lexer.Lexer
-	curToken  token.Token
-	peekToken token.Token
-	errors    []string
+	l              *lexer.Lexer
+	errors         []string
+	curToken       token.Token
+	peekToken      token.Token
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l: l,
 	}
+
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefixFn(token.IDENT, p.parseIdentifier)
 
 	p.nextToken()
 	p.nextToken()
@@ -56,8 +77,16 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
+}
+
+func (p *Parser) registerPrefixFn(tt token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tt] = fn
+}
+
+func (p *Parser) registerInfixFn(tt token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tt] = fn
 }
 
 // returns a LetStatemnt by parsing the current node
@@ -82,7 +111,8 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: We're skipping all the expressions until we encounter a semicolon
+	// TODO: We're skipping all the expressions until we encounter a semicolon.
+	// this is where the Expression construction will be introduced.
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -100,11 +130,43 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	p.nextToken()
 
 	// TODO: We're skipping the expressions until we encounter a semicolon
+	// this is where the Expression construction will be introduced.
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{
+		Token:      p.curToken,
+		Expression: nil,
+	}
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.curToken.Type]
+	if prefix == nil {
+		return nil
+	}
+	leftExp := prefix()
+
+	return leftExp
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {

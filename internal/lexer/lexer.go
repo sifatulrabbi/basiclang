@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"basiclang/token"
+	"basiclang/internal/token"
 )
 
 type Lexer struct {

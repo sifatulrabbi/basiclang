@@ -3,9 +3,9 @@ package parser
 import (
 	"fmt"
 
-	"basiclang/ast"
-	"basiclang/lexer"
-	"basiclang/token"
+	"basiclang/internal/ast"
+	"basiclang/internal/lexer"
+	"basiclang/internal/token"
 )
 
 const (

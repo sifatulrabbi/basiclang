@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"basiclang/token"
+	"basiclang/internal/token"
 )
 
 func TestString(t *testing.T) {

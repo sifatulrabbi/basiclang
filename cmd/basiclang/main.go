@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/user"
 
-	"basiclang/repl"
+	"basiclang/internal/repl"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package ast
 import (
 	"bytes"
 
-	"basiclang/token"
+	"basiclang/internal/token"
 )
 
 // Basic building block of the AST

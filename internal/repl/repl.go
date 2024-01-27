@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"basiclang/lexer"
-	"basiclang/token"
+	"basiclang/internal/lexer"
+	"basiclang/internal/token"
 )
 
 const PROMPT = ">> "
